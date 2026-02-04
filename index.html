@@ -135,6 +135,19 @@
 <b>Tip para papás:</b> Si tu hijo ya entiende instrucciones simples en inglés (ej: “sit down”, “open your book”), puede empezar directamente en <b>misiones</b>.
 
       </div>
+      .audio-controls{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin:8px 0;
+}
+
+.audio-controls .chip{
+  font-size:18px;
+  padding:8px 12px;
+  border-radius:12px;
+  cursor:pointer;
+}
 
     </section>
 
@@ -366,6 +379,11 @@ const MISSIONS = {
     { title:"At the supermarket", phrases:[
       ["How much is this?","¿Cuánto cuesta esto?"],
       ["Where is the milk?","¿Dónde está la leche?"],
+      <div class="audio-controls">
+  <button id="btnSpeak" class="chip" title="Listen">🔊</button>
+  <button id="btnMic" class="chip" title="Speak">🎤</button>
+  <span id="audioStatus" class="mut"></span>
+</div>
       ["I’d like some water, please.","Quisiera agua, por favor."],
       ["Thank you!","¡Gracias!"],
     ]},
