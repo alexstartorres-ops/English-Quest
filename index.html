@@ -82,7 +82,14 @@
   border:1px solid rgba(255,255,255,.12);
   margin-top:8px;
 }
-
+/* Map drag UX (Google-Maps feel) */
+#mapViewport{
+  cursor: grab;
+  overscroll-behavior: contain;
+  touch-action: none; /* permite arrastrar en mobile */
+}
+#mapViewport.dragging{ cursor: grabbing; }
+    
   </style>
 </head>
 <body>
@@ -525,6 +532,57 @@ function initMapUI(){
 
   $("zoomIn").onclick = ()=>{ MAP_ZOOM = Math.min(1.8, MAP_ZOOM + 0.1); renderMap(); };
   $("zoomOut").onclick = ()=>{ MAP_ZOOM = Math.max(0.7, MAP_ZOOM - 0.1); renderMap(); };
+    // --- Drag to pan (Google Maps feel) ---
+  const vp = $("mapViewport");
+  let isDown = false;
+  let startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
+
+  const down = (clientX, clientY)=>{
+    isDown = true;
+    vp.classList.add("dragging");
+    startX = clientX;
+    startY = clientY;
+    scrollLeft = vp.scrollLeft;
+    scrollTop = vp.scrollTop;
+  };
+
+  const move = (clientX, clientY)=>{
+    if(!isDown) return;
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+    vp.scrollLeft = scrollLeft - dx;
+    vp.scrollTop  = scrollTop  - dy;
+  };
+
+  const up = ()=>{
+    isDown = false;
+    vp.classList.remove("dragging");
+  };
+
+  // Mouse
+  vp.addEventListener("mousedown", (e)=> down(e.clientX, e.clientY));
+  window.addEventListener("mousemove", (e)=> move(e.clientX, e.clientY));
+  window.addEventListener("mouseup", up);
+
+  // Touch (mobile)
+  vp.addEventListener("touchstart", (e)=>{
+    const t = e.touches[0];
+    down(t.clientX, t.clientY);
+  }, {passive:true});
+
+  vp.addEventListener("touchmove", (e)=>{
+    const t = e.touches[0];
+    move(t.clientX, t.clientY);
+  }, {passive:true});
+
+  vp.addEventListener("touchend", up, {passive:true});
+  
+    vp.addEventListener("wheel", (e)=>{
+    e.preventDefault();
+    const dir = Math.sign(e.deltaY);
+    MAP_ZOOM = Math.max(0.7, Math.min(1.8, MAP_ZOOM + (dir > 0 ? -0.08 : 0.08)));
+    renderMap();
+  }, {passive:false});
 }
 
 /* ===========================
