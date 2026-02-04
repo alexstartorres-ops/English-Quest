@@ -59,9 +59,10 @@
       <span class="pill" id="today"></span>
     </div>
     <div class="row">
-      <button id="btnHome">🏠 Home</button>
-      <button id="btnArcade">🎮 Arcade</button>
-      <button id="btnParents">👨‍👩‍👧‍👦 Parents</button>
+      <button id="btnHome">🏠 My World</button>
+      <button id="btnArcade">🎮 Games</button>
+      <button id="btnParents">👨‍👩‍👧 Parents</button>
+
     </div>
   </div>
 </header>
@@ -71,12 +72,12 @@
   <main class="card">
     <!-- LOGIN -->
     <section id="viewLogin" class="card2">
-      <h2>Entrar (código del niño)</h2>
-      <div class="mut">No usamos emails. Solo un código para cada niño o grupo (ej: MATIAS123, ISAAC123, AMIGO001).</div>
+      <h2>🎯 Enter the Game</h2>
+      <div class="mut">Usa tu código para jugar y aprender inglés.</div>
       <div class="row" style="margin-top:10px;">
-        <input id="code" placeholder="Escribe el código…" style="min-width:220px;">
-        <button class="primary" id="btnEnter">Entrar</button>
-        <span class="pill" id="loginHint">Tip: crea códigos para hijos de amigos</span>
+        <input id="code" placeholder="Code (ej: MATIAS123)" style="min-width:220px;">
+        <button class="primary" id="btnEnter">🚀 Start</button>
+        <span class="pill" id="loginHint">⭐ Ask your parent for your code</span>
       </div>
       <div class="mut" style="margin-top:10px;">
         Sugerencia: el menor (A0/A1) empieza con <b>Phonics + palabras</b>. El mayor (A1/A2) con <b>misiones reales</b> (school, city, friends).
@@ -110,8 +111,8 @@
       <hr class="hr">
 
       <div class="row">
-        <button class="primary" id="btnDaily">▶️ Empezar misión de hoy</button>
-        <button id="btnReview">🔁 Repaso inteligente</button>
+        <button class="primary" id="btnDaily">🧭 Today’s Mission</button>
+        <button id="btnReview">🔁 Practice</button>
       </div>
 
       <div id="panel" style="margin-top:12px;"></div>
@@ -345,7 +346,7 @@ function renderWorlds(){
 }
 
 function renderKPIs(){
-  $("who").textContent = `Bienvenido: ${USER.code}`;
+  $("who").textContent = `🎮 Player: ${USER.code}`;
   $("kXP").textContent = USER.xp;
   $("kStreak").textContent = USER.streak;
   $("kToday").textContent = todayDone(USER) ? "1/1" : "0/1";
