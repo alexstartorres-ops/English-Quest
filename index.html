@@ -653,17 +653,25 @@ function addWrongWord(u, word){
    4) Audio: TTS + (optional) Speech Recognition
 =========================== */
 function speak(text){
-  try{
-    if(!text) return;
-    speechSynthesis.cancel(); // MUY IMPORTANTE
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = "en-US";
-    utt.rate = 0.95;
-    utt.pitch = 1;
-    speechSynthesis.speak(utt);
-  }catch(e){
-    console.log("TTS error:", e);
+  if(!window.speechSynthesis){
+    alert("Este navegador no soporta audio.");
+    return;
   }
+
+  // cancelar audios previos
+  speechSynthesis.cancel();
+
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = "en-US";
+  utt.rate = 0.9;
+  utt.pitch = 1;
+
+  utt.onerror = (e)=>{
+    console.error("TTS error", e);
+    alert("Error reproduciendo audio");
+  };
+
+  speechSynthesis.speak(utt);
 }
 
 let recog = null;
@@ -760,22 +768,41 @@ function checkTyping(worldId, i, target){
 }
 
 function practiceSpeak(target){
-  if(!recog) recog = initSpeechRec();
-  if(!recog){
-    alert("Tu navegador no soporta Speech Recognition. Usa el botón 🔊 y repite en voz alta.");
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if(!SR){
+    alert("Este navegador no soporta reconocimiento de voz.");
     return;
   }
-  recog.onresult = (e)=>{
-    const said = e.results[0][0].transcript;
-    const ok = normalize(said) === normalize(target);
-    alert(ok ? "¡Excelente pronunciación! ✅" : `Escuché: "${said}". Intenta otra vez.`);
-    if(!ok){
-      const words = normalize(target).split(" ").filter(w=>w.length>3).slice(0,2);
-      words.forEach(w=>addWrongWord(USER,w));
-      saveUser(USER);
-    }
-  };
-  recog.start();
+
+  navigator.mediaDevices.getUserMedia({ audio:true })
+    .then(()=>{
+      const rec = new SR();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+
+      rec.onresult = (e)=>{
+        const said = e.results[0][0].transcript;
+        const ok = normalize(said) === normalize(target);
+
+        alert(
+          ok
+          ? "✅ Excelente pronunciación"
+          : `❌ Escuché: "${said}"`
+        );
+      };
+
+      rec.onerror = (e)=>{
+        console.error(e);
+        alert("Error de micrófono");
+      };
+
+      rec.start();
+    })
+    .catch(()=>{
+      alert("Permiso de micrófono bloqueado");
+    });
 }
 
 function finishMission(){
