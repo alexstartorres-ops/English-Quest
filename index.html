@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>English Quest — Dubai Kids</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121f3f; --card2:#0f1a35;
+      --txt:#eaf0ff; --mut:rgba(255,255,255,.75);
+      --line:rgba(255,255,255,.10); --ok:#22c55e; --bad:#fb7185; --pri:#1e3a8a;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    body{margin:0;background:var(--bg);color:var(--txt);}
+    header{position:sticky;top:0;background:#101a33;border-bottom:1px solid var(--line);z-index:10;}
+    .wrap{max-width:1100px;margin:0 auto;padding:14px 14px;}
+    h1{margin:0;font-size:18px;}
+    h2{margin:0 0 8px;font-size:16px;}
+    h3{margin:0 0 8px;font-size:14px;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;}
+    @media(min-width:980px){.grid{grid-template-columns:1.3fr .7fr;}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;}
+    .card2{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:12px;}
+    .pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12px;}
+    .mut{color:var(--mut);font-size:13px;line-height:1.35;}
+    button, input, select{
+      border-radius:12px;border:1px solid rgba(255,255,255,.16);
+      background:var(--card2);color:var(--txt);padding:10px 12px;
+    }
+    button{cursor:pointer}
+    button.primary{background:var(--pri);}
+    button.good{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.35);}
+    button.bad{background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.35);}
+    a{color:#a8c7ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .hr{border:none;border-top:1px solid var(--line);margin:12px 0;}
+    .progress{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
+    .bar{height:100%;width:0%;background:var(--ok);}
+    .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    @media(min-width:700px){.tiles{grid-template-columns:repeat(4,1fr);}}
+    .tile{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:16px;padding:12px;cursor:pointer;}
+    .tile:hover{background:rgba(255,255,255,.09);}
+    .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+    .kpi .box{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:10px;}
+    .tag{font-size:11px;opacity:.85}
+    .big{font-size:18px;font-weight:700}
+    .msgOk{color:var(--ok)}
+    .msgBad{color:var(--bad)}
+    .list{margin:8px 0 0;padding-left:18px;}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap row" style="justify-content:space-between;">
+    <div class="row">
+      <h1>English Quest — Dubai Kids</h1>
+      <span class="pill" id="today"></span>
+    </div>
+    <div class="row">
+      <button id="btnHome">🏠 Home</button>
+      <button id="btnArcade">🎮 Arcade</button>
+      <button id="btnParents">👨‍👩‍👧‍👦 Parents</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap grid">
+  <!-- MAIN -->
+  <main class="card">
+    <!-- LOGIN -->
+    <section id="viewLogin" class="card2">
+      <h2>Entrar (código del niño)</h2>
+      <div class="mut">No usamos emails. Solo un código para cada niño o grupo (ej: MATIAS123, ISAAC123, AMIGO001).</div>
+      <div class="row" style="margin-top:10px;">
+        <input id="code" placeholder="Escribe el código…" style="min-width:220px;">
+        <button class="primary" id="btnEnter">Entrar</button>
+        <span class="pill" id="loginHint">Tip: crea códigos para hijos de amigos</span>
+      </div>
+      <div class="mut" style="margin-top:10px;">
+        Sugerencia: el menor (A0/A1) empieza con <b>Phonics + palabras</b>. El mayor (A1/A2) con <b>misiones reales</b> (school, city, friends).
+      </div>
+    </section>
+
+    <!-- HOME / MAP -->
+    <section id="viewHome" class="hidden">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <h2 id="who">Bienvenido</h2>
+          <div class="mut">Mapa de mundos (misiones). Completa una misión diaria para ganar XP.</div>
+        </div>
+        <div class="row">
+          <span class="pill" id="levelPill">Level 1</span>
+          <button id="btnLogout">Salir</button>
+        </div>
+      </div>
+
+      <div class="kpi" style="margin-top:10px;">
+        <div class="box"><div class="tag">XP</div><div class="big" id="kXP">0</div></div>
+        <div class="box"><div class="tag">Streak (días)</div><div class="big" id="kStreak">0</div></div>
+        <div class="box"><div class="tag">Misiones hoy</div><div class="big" id="kToday">0/1</div></div>
+      </div>
+
+      <hr class="hr">
+
+      <h3>🌍 Mundos (elige una misión)</h3>
+      <div class="tiles" id="worlds"></div>
+
+      <hr class="hr">
+
+      <div class="row">
+        <button class="primary" id="btnDaily">▶️ Empezar misión de hoy</button>
+        <button id="btnReview">🔁 Repaso inteligente</button>
+      </div>
+
+      <div id="panel" style="margin-top:12px;"></div>
+    </section>
+
+    <!-- ARCADE -->
+    <section id="viewArcade" class="hidden">
+      <h2>🎮 Arcade</h2>
+      <div class="mut">Juegos cortos para practicar. (Rápido + divertido + efectivo)</div>
+      <hr class="hr">
+      <div class="row">
+        <button onclick="arcadeMatch()">Match</button>
+        <button onclick="arcadeQuiz()">Quick Quiz</button>
+        <button onclick="arcadeListening()">Listening Bingo</button>
+      </div>
+      <div id="arcade" style="margin-top:12px;"></div>
+    </section>
+
+    <!-- PARENTS -->
+    <section id="viewParents" class="hidden">
+      <h2>👨‍👩‍👧‍👦 Panel para papás</h2>
+      <div class="mut">Este panel lee el progreso guardado en el dispositivo. (Luego podemos hacer versión con base de datos.)</div>
+      <hr class="hr">
+      <div id="parents"></div>
+    </section>
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="card">
+    <h2>Fuentes reales (recursos)</h2>
+    <div class="mut">Usamos enlaces oficiales. Esto es importante para que sea serio y confiable.</div>
+    <ul class="list">
+      <li><a target="_blank" rel="noreferrer" href="https://learnenglishkids.britishcouncil.org/">British Council — LearnEnglish Kids</a></li>
+      <li><a target="_blank" rel="noreferrer" href="https://www.bbc.co.uk/learningenglish">BBC Learning English</a></li>
+      <li><a target="_blank" rel="noreferrer" href="https://www.cambridgeenglish.org/learning-english/">Cambridge English — Learning</a></li>
+      <li><a target="_blank" rel="noreferrer" href="https://www.oxfordowl.co.uk/">Oxford Owl — Reading</a></li>
+      <li><a target="_blank" rel="noreferrer" href="https://www.starfall.com/">Starfall — Beginners</a></li>
+    </ul>
+
+    <hr class="hr">
+
+    <h3>🎙️ Pronunciación (futurista)</h3>
+    <div class="mut">
+      Esta web puede hablar (TTS) y escuchar (micrófono) si el navegador lo permite.
+      Ideal para “inmersión” sin pagar apps caras.
+    </div>
+
+    <hr class="hr">
+
+    <h3>🚀 Roadmap (visión Roblox)</h3>
+    <ul class="list mut">
+      <li>Web PWA (hoy): misiones + juegos + speaking.</li>
+      <li>Mini mundo 3D en navegador (Three.js).</li>
+      <li>Roblox/VR: misiones en un “Dubai School World”.</li>
+    </ul>
+  </aside>
+</div>
+
+<script>
+/* ===========================
+   0) Utilities & Date
+=========================== */
+const today = new Date();
+const dayKey = today.toISOString().slice(0,10);
+document.getElementById("today").textContent =
+  today.toLocaleDateString("es-ES",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+const $ = (id)=>document.getElementById(id);
+
+function show(view){
+  ["viewLogin","viewHome","viewArcade","viewParents"].forEach(v=>$(v).classList.add("hidden"));
+  $(view).classList.remove("hidden");
+}
+
+/* ===========================
+   1) Data model (Local)
+=========================== */
+function storeKey(code){ return `eq_user_${code.toUpperCase()}`; }
+
+function loadUser(code){
+  const raw = localStorage.getItem(storeKey(code));
+  if(raw) return JSON.parse(raw);
+  // Create new user
+  const u = {
+    code: code.toUpperCase(),
+    createdAt: Date.now(),
+    xp: 0,
+    level: 1,
+    streak: 0,
+    lastDay: null,
+    completedDays: {},
+    wrongWords: {}, // {word: {count, lastWrongDay}}
+  };
+  localStorage.setItem(storeKey(code), JSON.stringify(u));
+  return u;
+}
+
+function saveUser(u){
+  localStorage.setItem(storeKey(u.code), JSON.stringify(u));
+}
+
+let USER = null;
+
+/* ===========================
+   2) Worlds & Missions
+=========================== */
+const WORLDS = [
+  { id:"school", title:"School", desc:"Classroom, teacher, homework", emoji:"🏫" },
+  { id:"home", title:"Home", desc:"Family, routines, chores", emoji:"🏠" },
+  { id:"city", title:"City", desc:"Directions, supermarket, transport", emoji:"🏙️" },
+  { id:"friends", title:"Friends", desc:"Feelings, games, social talk", emoji:"🧑‍🤝‍🧑" },
+];
+
+const MISSIONS = {
+  school: [
+    { title:"In the classroom", phrases:[
+      ["Can you repeat, please?","¿Puedes repetir, por favor?"],
+      ["I don’t understand.","No entiendo."],
+      ["May I go to the bathroom?","¿Puedo ir al baño?"],
+      ["What does this mean?","¿Qué significa esto?"],
+    ]},
+  ],
+  home: [
+    { title:"Daily routine", phrases:[
+      ["I wake up at 7.","Me despierto a las 7."],
+      ["I brush my teeth.","Me cepillo los dientes."],
+      ["I do my homework.","Hago mi tarea."],
+      ["I go to bed early.","Me acuesto temprano."],
+    ]},
+  ],
+  city: [
+    { title:"At the supermarket", phrases:[
+      ["How much is this?","¿Cuánto cuesta esto?"],
+      ["Where is the milk?","¿Dónde está la leche?"],
+      ["I’d like some water, please.","Quisiera agua, por favor."],
+      ["Thank you!","¡Gracias!"],
+    ]},
+  ],
+  friends: [
+    { title:"Making friends", phrases:[
+      ["Hi, my name is ___.","Hola, mi nombre es ___."],
+      ["Do you want to play?","¿Quieres jugar?"],
+      ["That’s awesome!","¡Eso es genial!"],
+      ["See you tomorrow!","¡Nos vemos mañana!"],
+    ]},
+  ],
+};
+
+/* ===========================
+   3) Learning mechanics
+   - XP + Streak
+   - Spaced review (wrong words)
+=========================== */
+function updateStreak(u){
+  if(!u.lastDay){
+    u.streak = 0; u.lastDay = dayKey; return;
+  }
+  if(u.lastDay === dayKey) return;
+
+  const prev = new Date(u.lastDay);
+  const now = new Date(dayKey);
+  const diffDays = Math.round((now - prev)/(1000*60*60*24));
+
+  if(diffDays === 1) u.streak += 1;
+  else u.streak = 0;
+
+  u.lastDay = dayKey;
+}
+
+function awardXP(u, amount){
+  u.xp += amount;
+  const nextLevel = 1 + Math.floor(u.xp/200);
+  u.level = Math.max(u.level, nextLevel);
+}
+
+function markDayDone(u){
+  u.completedDays[dayKey] = true;
+}
+
+function todayDone(u){ return !!u.completedDays[dayKey]; }
+
+function addWrongWord(u, word){
+  const w = word.toLowerCase();
+  const cur = u.wrongWords[w] || {count:0,lastWrongDay:null};
+  cur.count += 1;
+  cur.lastWrongDay = dayKey;
+  u.wrongWords[w] = cur;
+}
+
+/* ===========================
+   4) Audio: TTS + (optional) Speech Recognition
+=========================== */
+function speak(text){
+  try{
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = "en-US"; // puedes cambiar a en-GB si quieres
+    speechSynthesis.speak(utt);
+  }catch(e){}
+}
+
+let recog = null;
+function initSpeechRec(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.lang = "en-US";
+  r.interimResults = false;
+  r.maxAlternatives = 1;
+  return r;
+}
+
+/* ===========================
+   5) Render Home
+=========================== */
+function renderWorlds(){
+  const el = $("worlds");
+  el.innerHTML = "";
+  WORLDS.forEach(w=>{
+    const d = document.createElement("div");
+    d.className = "tile";
+    d.innerHTML = `
+      <div class="row" style="justify-content:space-between;">
+        <div><div style="font-size:18px">${w.emoji} <b>${w.title}</b></div>
+        <div class="mut">${w.desc}</div></div>
+        <span class="pill">Open</span>
+      </div>
+    `;
+    d.onclick = ()=> openWorld(w.id);
+    el.appendChild(d);
+  });
+}
+
+function renderKPIs(){
+  $("who").textContent = `Bienvenido: ${USER.code}`;
+  $("kXP").textContent = USER.xp;
+  $("kStreak").textContent = USER.streak;
+  $("kToday").textContent = todayDone(USER) ? "1/1" : "0/1";
+  $("levelPill").textContent = `Level ${USER.level}`;
+}
+
+function openWorld(id){
+  const m = MISSIONS[id][0];
+  $("panel").innerHTML = missionHTML(id, m);
+}
+
+function missionHTML(worldId, m){
+  const lines = m.phrases.map(([en,es],i)=>`
+    <div class="card2" style="margin-top:10px;">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div><b>${i+1}. ${en}</b></div>
+          <div class="mut">${es}</div>
+        </div>
+        <div class="row">
+          <button onclick="speak(${JSON.stringify(en)})">🔊</button>
+          <button onclick="practiceSpeak(${JSON.stringify(en)})">🎙️</button>
+        </div>
+      </div>
+      <div class="mut" style="margin-top:8px;">Escribe la frase (sin mirar) y luego compara:</div>
+      <div class="row">
+        <input id="type_${worldId}_${i}" placeholder="Type here..." style="flex:1;min-width:220px;">
+        <button class="primary" onclick="checkTyping('${worldId}',${i},${JSON.stringify(en)})">Check</button>
+        <span id="res_${worldId}_${i}" class="pill">—</span>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+    <h3>🎯 Misión: ${m.title}</h3>
+    <div class="mut">Rutina sugerida: escucha → repite → escribe → juego → mini test.</div>
+    ${lines}
+    <hr class="hr">
+    <button class="primary" onclick="finishMission()">✅ Terminar misión (gana XP)</button>
+  `;
+}
+
+function normalize(s){
+  return (s||"").toLowerCase().replace(/[^a-z0-9\s']/g,"").replace(/\s+/g," ").trim();
+}
+
+function checkTyping(worldId, i, target){
+  const val = $("type_"+worldId+"_"+i).value;
+  const ok = normalize(val) === normalize(target);
+  const out = $("res_"+worldId+"_"+i);
+  out.innerHTML = ok ? "<span class='msgOk'>Correct ✅</span>" : "<span class='msgBad'>Try again</span>";
+  if(!ok){
+    // add 1-2 key words to review list
+    const words = normalize(target).split(" ").filter(w=>w.length>3).slice(0,2);
+    words.forEach(w=>addWrongWord(USER,w));
+    saveUser(USER);
+  }
+}
+
+function practiceSpeak(target){
+  if(!recog) recog = initSpeechRec();
+  if(!recog){
+    alert("Tu navegador no soporta Speech Recognition. Usa el botón 🔊 y repite en voz alta.");
+    return;
+  }
+  recog.onresult = (e)=>{
+    const said = e.results[0][0].transcript;
+    const ok = normalize(said) === normalize(target);
+    alert(ok ? "¡Excelente pronunciación! ✅" : `Escuché: "${said}". Intenta otra vez.`);
+    if(!ok){
+      const words = normalize(target).split(" ").filter(w=>w.length>3).slice(0,2);
+      words.forEach(w=>addWrongWord(USER,w));
+      saveUser(USER);
+    }
+  };
+  recog.start();
+}
+
+function finishMission(){
+  if(todayDone(USER)){
+    alert("Ya completaste la misión de hoy ✅");
+    return;
+  }
+  updateStreak(USER);
+  awardXP(USER, 50);
+  markDayDone(USER);
+  saveUser(USER);
+  renderKPIs();
+  $("panel").innerHTML = `<div class="card2"><b class="msgOk">¡Misión completada! ✅</b><div class="mut">Ganaste 50 XP. Vuelve mañana para mantener el streak.</div></div>`;
+}
+
+/* ===========================
+   6) Smart Review (Spaced)
+=========================== */
+function smartReview(){
+  const entries = Object.entries(USER.wrongWords || {});
+  if(entries.length === 0){
+    $("panel").innerHTML = `<div class="card2"><b>🔁 Repaso</b><div class="mut">No hay palabras pendientes. ¡Vas muy bien! ✅</div></div>`;
+    return;
+  }
+  // sort by count desc
+  entries.sort((a,b)=> (b[1].count||0)-(a[1].count||0));
+  const top = entries.slice(0,8);
+
+  $("panel").innerHTML = `
+    <h3>🔁 Repaso inteligente</h3>
+    <div class="mut">Estas son las palabras que más se te dificultan. Escucha y escribe.</div>
+    ${top.map(([w,info],idx)=>`
+      <div class="card2" style="margin-top:10px;">
+        <div class="row" style="justify-content:space-between;">
+          <div><b>${idx+1}. ${w}</b> <span class="pill">mistakes: ${info.count}</span></div>
+          <button onclick="speak('${w}')">🔊</button>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <input id="rw_${idx}" placeholder="Type the word..." style="flex:1;min-width:220px;">
+          <button class="primary" onclick="checkWord(${idx},'${w}')">Check</button>
+          <span id="rwres_${idx}" class="pill">—</span>
+        </div>
+      </div>
+    `).join("")}
+  `;
+}
+
+function checkWord(idx, target){
+  const val = $("rw_"+idx).value;
+  const ok = normalize(val) === normalize(target);
+  $("rwres_"+idx).innerHTML = ok ? "<span class='msgOk'>Correct ✅</span>" : "<span class='msgBad'>Try again</span>";
+  if(ok){
+    // reduce mistake weight a bit
+    const cur = USER.wrongWords[target];
+    if(cur && cur.count>0) cur.count -= 1;
+    saveUser(USER);
+  }
+}
+
+/* ===========================
+   7) Arcade Games
+=========================== */
+function arcadeMatch(){
+  $("arcade").innerHTML = `
+    <div class="card2">
+      <h3>Match</h3>
+      <div class="mut">Toca en orden: Inglés → Español.</div>
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+        ${["dog","book","house","perro","libro","casa"].map(x=>`<button onclick="pick('${x}')">${x}</button>`).join("")}
+      </div>
+      <div id="matchOut" class="mut" style="margin-top:10px;"></div>
+    </div>
+  `;
+}
+let first=null;
+const pairs = {dog:"perro",book:"libro",house:"casa"};
+function pick(x){
+  const out = $("matchOut");
+  if(!first){ first=x; out.textContent=`Elegiste: ${x}. Ahora toca su pareja.`; return; }
+  const ok = pairs[first]===x || pairs[x]===first;
+  out.innerHTML = ok ? "<b class='msgOk'>¡Match! ✅</b>" : "<b class='msgBad'>No es pareja.</b>";
+  first=null;
+  if(!ok && USER){ addWrongWord(USER, (x.length>3?x:first)||x); saveUser(USER); }
+}
+
+function arcadeQuiz(){
+  $("arcade").innerHTML = `
+    <div class="card2">
+      <h3>Quick Quiz</h3>
+      <div class="mut">Responde rápido (active recall).</div>
+      <div style="margin-top:10px">
+        <div class="mut">1) “How are you?” significa:</div>
+        <div class="row">
+          <button class="good" onclick="q1(true)">¿Cómo estás?</button>
+          <button class="bad" onclick="q1(false)">¿Dónde estás?</button>
+          <span id="q1r" class="pill">—</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function q1(ok){
+  $("q1r").innerHTML = ok ? "<span class='msgOk'>Correct ✅</span>" : "<span class='msgBad'>No</span>";
+  if(!ok && USER){ addWrongWord(USER,"how"); addWrongWord(USER,"are"); saveUser(USER); }
+}
+
+function arcadeListening(){
+  $("arcade").innerHTML = `
+    <div class="card2">
+      <h3>Listening Bingo</h3>
+      <div class="mut">Toca 🔊, escucha y selecciona la palabra correcta.</div>
+      <div class="row" style="margin-top:10px;">
+        <button onclick="playBingo()">🔊 Play</button>
+        <span class="pill" id="bingoHint">—</span>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        ${["milk","water","apple"].map(w=>`<button onclick="bingoPick('${w}')">${w}</button>`).join("")}
+      </div>
+      <div id="bingoOut" class="mut" style="margin-top:10px;"></div>
+    </div>
+  `;
+}
+let bingoTarget=null;
+function playBingo(){
+  const words=["milk","water","apple"];
+  bingoTarget = words[Math.floor(Math.random()*words.length)];
+  $("bingoHint").textContent="Escuchando…";
+  speak(bingoTarget);
+}
+function bingoPick(w){
+  if(!bingoTarget){ $("bingoOut").innerHTML="<b class='msgBad'>Primero toca Play 🔊</b>"; return; }
+  const ok = w===bingoTarget;
+  $("bingoOut").innerHTML = ok ? "<b class='msgOk'>¡Correcto! ✅</b>" : `<b class='msgBad'>No. Era: ${bingoTarget}</b>`;
+  if(!ok && USER){ addWrongWord(USER,bingoTarget); saveUser(USER); }
+  bingoTarget=null;
+}
+
+/* ===========================
+   8) Parents view (simple)
+=========================== */
+function renderParents(){
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith("eq_user_"));
+  if(keys.length===0){
+    $("parents").innerHTML = `<div class="card2"><div class="mut">No hay usuarios guardados aún.</div></div>`;
+    return;
+  }
+  const users = keys.map(k=>JSON.parse(localStorage.getItem(k))).sort((a,b)=>b.xp-a.xp);
+  $("parents").innerHTML = users.map(u=>{
+    const days = Object.keys(u.completedDays||{}).length;
+    const hard = Object.entries(u.wrongWords||{}).sort((a,b)=>b[1].count-a[1].count).slice(0,5);
+    return `
+      <div class="card2" style="margin-top:10px;">
+        <div class="row" style="justify-content:space-between;">
+          <div><b>${u.code}</b> <span class="pill">Level ${u.level}</span></div>
+          <div class="row"><span class="pill">XP ${u.xp}</span><span class="pill">Streak ${u.streak}</span></div>
+        </div>
+        <div class="mut" style="margin-top:6px;">Días completados: <b>${days}</b></div>
+        <div class="mut" style="margin-top:6px;">Palabras difíciles:
+          ${hard.length? hard.map(([w,info])=>`<span class="pill">${w} (${info.count})</span>`).join(" ") : "<span class='pill'>—</span>"}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ===========================
+   9) Navigation buttons
+=========================== */
+$("btnHome").onclick = ()=> { if(USER){ show("viewHome"); renderKPIs(); } else show("viewLogin"); };
+$("btnArcade").onclick = ()=> { show("viewArcade"); $("arcade").innerHTML = `<div class="card2" class="mut">Elige un juego arriba.</div>`; };
+$("btnParents").onclick = ()=> { show("viewParents"); renderParents(); };
+
+$("btnEnter").onclick = ()=>{
+  const code = $("code").value.trim();
+  if(!code){ alert("Escribe un código."); return; }
+  USER = loadUser(code);
+  renderWorlds();
+  renderKPIs();
+  $("panel").innerHTML = `<div class="card2"><b>Elige un mundo arriba</b><div class="mut">Luego presiona “Empezar misión de hoy”.</div></div>`;
+  show("viewHome");
+};
+
+$("btnLogout").onclick = ()=>{
+  USER = null;
+  $("code").value="";
+  show("viewLogin");
+};
+
+$("btnDaily").onclick = ()=>{
+  // pick world based on simple rotation
+  const w = WORLDS[today.getDay()%WORLDS.length].id;
+  openWorld(w);
+};
+
+$("btnReview").onclick = ()=> smartReview();
+
+// default view
+show("viewLogin");
+</script>
+</body>
+</html>
