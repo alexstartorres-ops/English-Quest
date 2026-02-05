@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>English Quest — Dubai Kids</title>
+
   <style>
     :root{
       --bg:#0b1220; --card:#121f3f; --card2:#0f1a35;
@@ -35,8 +36,6 @@
     a{color:#a8c7ff;text-decoration:none}
     a:hover{text-decoration:underline}
     .hr{border:none;border-top:1px solid var(--line);margin:12px 0;}
-    .progress{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
-    .bar{height:100%;width:0%;background:var(--ok);}
     .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
     @media(min-width:700px){.tiles{grid-template-columns:repeat(4,1fr);}}
     .tile{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:16px;padding:12px;cursor:pointer;}
@@ -49,63 +48,59 @@
     .msgBad{color:var(--bad)}
     .list{margin:8px 0 0;padding-left:18px;}
     .hidden{display:none}
-    /* ===== MAP / POIs (Fortnite-style) ===== */
-.poi{
-  position:absolute;
-  transform: translate(-50%, -100%);
-  cursor:pointer;
-  user-select:none;
-  padding:8px 10px;
-  border-radius:14px;
-  background: rgba(0,0,0,.28);
-  border: 1px solid rgba(255,255,255,.18);
-  backdrop-filter: blur(6px);
-  font-size:12px;
-}
-.poi:hover{
-  background: rgba(0,0,0,.40);
-}
-.poi.locked{
-  opacity:.55;
-}
-.poi .name{
-  font-weight:700;
-}
-.poi .badge{
-  margin-left:6px;
-}
-.poiThumb{
-  width:100%;
-  max-height:140px;
-  object-fit:cover;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.12);
-  margin-top:8px;
-}
-/* Map drag UX (Google-Maps feel) */
-#mapViewport{
-  cursor: grab;
-  overscroll-behavior: contain;
-  touch-action: none; /* permite arrastrar en mobile */
-}
-#mapViewport.dragging{ cursor: grabbing; }
 
-    /* Audio buttons */
-.audio-controls{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  margin:6px 0;
-}
-.audio-controls button{
-  font-size:18px;
-  padding:8px 12px;
-  border-radius:12px;
-  cursor:pointer;
-}
-    
+    /* ===== Audio controls (chips) ===== */
+    .audio-controls{display:flex;gap:10px;align-items:center;}
+    .audio-controls button{font-size:18px;padding:8px 12px;border-radius:12px;}
+    .audioStatus{font-size:12px;color:var(--mut);}
+
+    /* ===== MAP / POIs ===== */
+    #mapViewport{
+      height:420px;
+      overflow:auto;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      cursor: grab;
+      overscroll-behavior: contain;
+      touch-action: none; /* para drag en mobile */
+      user-select:none;
+    }
+    #mapViewport.dragging{ cursor: grabbing; }
+
+    #mapCanvas{
+      position:relative;
+      width:1100px;
+      height:700px;
+      transform-origin: top left;
+    }
+
+    .poi{
+      position:absolute;
+      transform: translate(-50%, -100%);
+      cursor:pointer;
+      user-select:none;
+      padding:8px 10px;
+      border-radius:14px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(6px);
+      font-size:12px;
+    }
+    .poi:hover{ background: rgba(0,0,0,.40); }
+    .poi.locked{ opacity:.55; }
+    .poi .name{ font-weight:700; }
+    .poi .badge{ margin-left:6px; }
+    .poiThumb{
+      width:100%;
+      max-height:140px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      margin-top:8px;
+    }
   </style>
 </head>
+
 <body>
 <header>
   <div class="wrap row" style="justify-content:space-between;">
@@ -118,7 +113,6 @@
       <button id="btnMap">🗺️ Map</button>
       <button id="btnArcade">🎮 Games</button>
       <button id="btnParents">👨‍👩‍👧 Parents</button>
-
     </div>
   </div>
 </header>
@@ -126,6 +120,7 @@
 <div class="wrap grid">
   <!-- MAIN -->
   <main class="card">
+
     <!-- LOGIN -->
     <section id="viewLogin" class="card2">
       <h2>🎯 Enter the Game</h2>
@@ -135,103 +130,94 @@
         <button class="primary" id="btnEnter">🚀 Start</button>
         <span class="pill" id="loginHint">⭐ Ask your parent for your code</span>
       </div>
-      <div class="mut">
-🎯 <b>Cada niño es diferente.</b> Aquí no importa solo la edad, sino cómo usa el inglés.<br><br>
 
-<b>Guía rápida por edad:</b><br>
-• <b>6–8 años</b>: phonics (sonidos) + palabras.<br>
-• <b>8–10 años</b>: frases cortas + comprensión (listening).<br>
-• <b>10–15 años</b>: misiones reales (school, city, friends).<br><br>
+      <div class="mut" style="margin-top:10px;">
+        🎯 <b>Cada niño es diferente.</b> Aquí no importa solo la edad, sino cómo usa el inglés.<br><br>
 
-<b>¿No sabes el nivel?</b> Pronto habrá una <b>prueba corta</b> (tipo juego) para recomendar por dónde empezar.
+        <b>Guía rápida por edad:</b><br>
+        • <b>6–8 años</b>: phonics (sonidos) + palabras.<br>
+        • <b>8–10 años</b>: frases cortas + comprensión (listening).<br>
+        • <b>10–15 años</b>: misiones reales (school, city, friends).<br><br>
 
+        <b>¿No sabes el nivel?</b> Pronto habrá una <b>prueba corta</b> (tipo juego) para recomendar por dónde empezar.
         <hr style="margin:10px 0; opacity:.3">
-<b>Tip para papás:</b> Si tu hijo ya entiende instrucciones simples en inglés (ej: “sit down”, “open your book”), puede empezar directamente en <b>misiones</b>.
-
+        <b>Tip para papás:</b> Si tu hijo ya entiende instrucciones simples en inglés (ej: “sit down”, “open your book”), puede empezar directamente en <b>misiones</b>.
       </div>
-     
 
-
-.audio-controls .chip{
-  font-size:18px;
-  padding:8px 12px;
-  border-radius:12px;
-  cursor:pointer;
-}
-
+      <div class="mut" style="margin-top:10px;">
+        <b>Audio:</b> 🔊 y 🎤 funcionan mejor en <b>Chrome/Edge</b>. El micrófono requiere permiso.
+      </div>
     </section>
 
-    <!-- MAP (Fortnite-style) -->
-<section id="viewMap" class="hidden">
-  <div class="row" style="justify-content:space-between; align-items:flex-start;">
-    <div>
-      <h2>🗺️ World Map</h2>
-      <div class="mut">Select a location (POI) to start missions. Locked areas unlock as your level increases.</div>
-    </div>
+    <!-- MAP -->
+    <section id="viewMap" class="hidden">
+      <div class="row" style="justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2>🗺️ World Map</h2>
+          <div class="mut">Arrastra para moverte (como Google Maps). Rueda del mouse para zoom.</div>
+        </div>
 
-    <div class="row">
-      <button id="zoomOut">➖</button>
-      <span class="pill" id="zoomLabel">100%</span>
-      <button id="zoomIn">➕</button>
-    </div>
-  </div>
-
-  <hr class="hr">
-
-  <div class="row" style="align-items:stretch; gap:12px;">
-    <!-- MAP CANVAS -->
-    <div class="card2" style="flex:1; min-width:260px;">
-      <div class="row" style="justify-content:space-between; margin-bottom:8px;">
-        <div class="mut"><b>Dubai + Abu Dhabi</b> (Fortnite-style POIs)</div>
-        <button id="btnAddHome">📸 Add My Home</button>
-      </div>
-
-      <div id="mapViewport" style="height:420px; overflow:auto; border-radius:16px; border:1px solid rgba(255,255,255,.10);">
-        <div id="mapCanvas" style="position:relative; width:1100px; height:700px; transform-origin: top left;">
-          <!-- Background grid (simple, fast) -->
-          <div style="position:absolute; inset:0; background:
-            radial-gradient(circle at 20% 30%, rgba(30,58,138,.45), transparent 45%),
-            radial-gradient(circle at 70% 60%, rgba(34,197,94,.18), transparent 45%),
-            linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-            ">
-          </div>
-
-          <!-- “Sea” / edges -->
-          <div style="position:absolute; left:0; top:0; width:100%; height:100%;
-            background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
-            background-size: 44px 44px;
-            opacity:.35;">
-          </div>
-
-          <!-- POIs injected by JS -->
-          <div id="poiLayer" style="position:absolute; inset:0;"></div>
+        <div class="row">
+          <button id="zoomOut">➖</button>
+          <span class="pill" id="zoomLabel">100%</span>
+          <button id="zoomIn">➕</button>
         </div>
       </div>
 
-      <!-- Hidden file input -->
-      <input id="homePhotoInput" type="file" accept="image/*" style="display:none;">
-    </div>
-
-    <!-- SIDE PANEL -->
-    <div class="card2" style="width:330px; min-width:280px;">
-      <h3>📍 Location</h3>
-      <div id="poiPanel" class="mut">Tap a POI on the map to see details.</div>
       <hr class="hr">
-      <div class="mut">
-        <b>Legend</b><br>
-        ✅ Open • 🔒 Locked • ⭐ Recommended Today
-      </div>
-    </div>
-  </div>
-</section>
 
-    <!-- HOME / MAP -->
+      <div class="row" style="align-items:stretch; gap:12px;">
+        <!-- MAP CANVAS -->
+        <div class="card2" style="flex:1; min-width:260px;">
+          <div class="row" style="justify-content:space-between; margin-bottom:8px;">
+            <div class="mut"><b>Dubai + Abu Dhabi</b> (Fortnite-style POIs)</div>
+            <button id="btnAddHome">📸 Add My Home</button>
+          </div>
+
+          <div id="mapViewport">
+            <div id="mapCanvas">
+              <!-- Background -->
+              <div style="position:absolute; inset:0; background:
+                radial-gradient(circle at 20% 30%, rgba(30,58,138,.45), transparent 45%),
+                radial-gradient(circle at 70% 60%, rgba(34,197,94,.18), transparent 45%),
+                linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+              "></div>
+
+              <!-- Grid -->
+              <div style="position:absolute; inset:0;
+                background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+                                  linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+                background-size: 44px 44px;
+                opacity:.35;">
+              </div>
+
+              <!-- POIs -->
+              <div id="poiLayer" style="position:absolute; inset:0;"></div>
+            </div>
+          </div>
+
+          <input id="homePhotoInput" type="file" accept="image/*" style="display:none;">
+        </div>
+
+        <!-- SIDE PANEL -->
+        <div class="card2" style="width:330px; min-width:280px;">
+          <h3>📍 Location</h3>
+          <div id="poiPanel" class="mut">Tap a POI on the map to see details.</div>
+          <hr class="hr">
+          <div class="mut">
+            <b>Legend</b><br>
+            ✅ Open • 🔒 Locked • ⭐ Recommended Today
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOME -->
     <section id="viewHome" class="hidden">
       <div class="row" style="justify-content:space-between;">
         <div>
           <h2 id="who">Bienvenido</h2>
-          <div class="mut">Mapa de mundos (misiones). Completa una misión diaria para ganar XP.</div>
+          <div class="mut">Completa una misión diaria para ganar XP.</div>
         </div>
         <div class="row">
           <span class="pill" id="levelPill">Level 1</span>
@@ -276,7 +262,7 @@
     <!-- PARENTS -->
     <section id="viewParents" class="hidden">
       <h2>👨‍👩‍👧‍👦 Panel para papás</h2>
-      <div class="mut">Este panel lee el progreso guardado en el dispositivo. (Luego podemos hacer versión con base de datos.)</div>
+      <div class="mut">Lee el progreso guardado en este dispositivo.</div>
       <hr class="hr">
       <div id="parents"></div>
     </section>
@@ -285,7 +271,7 @@
   <!-- SIDEBAR -->
   <aside class="card">
     <h2>Fuentes reales (recursos)</h2>
-    <div class="mut">Usamos enlaces oficiales. Esto es importante para que sea serio y confiable.</div>
+    <div class="mut">Usamos enlaces oficiales.</div>
     <ul class="list">
       <li><a target="_blank" rel="noreferrer" href="https://learnenglishkids.britishcouncil.org/">British Council — LearnEnglish Kids</a></li>
       <li><a target="_blank" rel="noreferrer" href="https://www.bbc.co.uk/learningenglish">BBC Learning English</a></li>
@@ -296,33 +282,33 @@
 
     <hr class="hr">
 
-    <h3>🎙️ Pronunciación (futurista)</h3>
+    <h3>🎙️ Pronunciación</h3>
     <div class="mut">
-      Esta web puede hablar (TTS) y escuchar (micrófono) si el navegador lo permite.
-      Ideal para “inmersión” sin pagar apps caras.
+      🔊 lee frases (TTS) y 🎤 escucha (SpeechRecognition) si el navegador lo permite.
     </div>
 
     <hr class="hr">
 
-    <h3>🚀 Roadmap (visión Roblox)</h3>
+    <h3>🚀 Roadmap</h3>
     <ul class="list mut">
-      <li>Web PWA (hoy): misiones + juegos + speaking.</li>
-      <li>Mini mundo 3D en navegador (Three.js).</li>
-      <li>Roblox/VR: misiones en un “Dubai School World”.</li>
+      <li>PWA (hoy): misiones + juegos + speaking.</li>
+      <li>Mini mundo 3D (Three.js).</li>
+      <li>Roblox/VR: “Dubai School World”.</li>
     </ul>
   </aside>
 </div>
 
 <script>
 /* ===========================
-   0) Utilities & Date
+   0) Helpers + Date
 =========================== */
 const today = new Date();
 const dayKey = today.toISOString().slice(0,10);
-document.getElementById("today").textContent =
-  today.toLocaleDateString("es-ES",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-
 const $ = (id)=>document.getElementById(id);
+
+$("today").textContent = today.toLocaleDateString(
+  "es-ES",{weekday:"long",year:"numeric",month:"long",day:"numeric"}
+);
 
 function show(view){
   ["viewLogin","viewHome","viewMap","viewArcade","viewParents"].forEach(v=>$(v).classList.add("hidden"));
@@ -330,14 +316,14 @@ function show(view){
 }
 
 /* ===========================
-   1) Data model (Local)
+   1) Local users
 =========================== */
 function storeKey(code){ return `eq_user_${code.toUpperCase()}`; }
 
 function loadUser(code){
   const raw = localStorage.getItem(storeKey(code));
   if(raw) return JSON.parse(raw);
-  // Create new user
+
   const u = {
     code: code.toUpperCase(),
     createdAt: Date.now(),
@@ -346,7 +332,7 @@ function loadUser(code){
     streak: 0,
     lastDay: null,
     completedDays: {},
-    wrongWords: {}, // {word: {count, lastWrongDay}}
+    wrongWords: {},
   };
   localStorage.setItem(storeKey(code), JSON.stringify(u));
   return u;
@@ -359,7 +345,7 @@ function saveUser(u){
 let USER = null;
 
 /* ===========================
-   2) Worlds & Missions
+   2) Worlds + Missions (DATA ONLY)
 =========================== */
 const WORLDS = [
   { id:"school", title:"School", desc:"Classroom, teacher, homework", emoji:"🏫" },
@@ -402,230 +388,19 @@ const MISSIONS = {
     ]},
   ],
 };
-/* ===========================
-   MAP: Fortnite-style POIs
-=========================== */
-
-// Real POIs (v1). Coordinates are relative to the 1100x700 canvas.
-const POIS = [
-  // Dubai
-  { id:"dxb", name:"Dubai International Airport (DXB)", emoji:"✈️", city:"Dubai", minLevel:2, x:820, y:180, desc:"Check-in, security, gate, boarding." },
-  { id:"metro", name:"Dubai Metro", emoji:"🚇", city:"Dubai", minLevel:2, x:720, y:270, desc:"Tickets, directions, stations, routes." },
-  { id:"rtaTaxi", name:"RTA Taxi (Dubai)", emoji:"🚕", city:"Dubai", minLevel:1, x:660, y:330, desc:"Go to…, stop, please, price." },
-  { id:"dubaiMall", name:"Dubai Mall", emoji:"🏬", city:"Dubai", minLevel:1, x:610, y:390, desc:"Shopping, food, prices, asking for help." },
-  { id:"downtown", name:"Downtown Dubai", emoji:"🏙️", city:"Dubai", minLevel:2, x:560, y:440, desc:"Directions, landmarks, meeting friends." },
-  { id:"jbr", name:"JBR / The Beach", emoji:"🏖️", city:"Dubai", minLevel:3, x:740, y:470, desc:"Tourist talk, activities, safety rules." },
-  { id:"sports", name:"Sports World", emoji:"⚽", city:"Dubai", minLevel:2, x:470, y:320, desc:"Sports verbs, teamwork, friendly talk." },
-
-  // Abu Dhabi
-  { id:"auh", name:"Zayed International Airport (AUH)", emoji:"✈️", city:"Abu Dhabi", minLevel:3, x:260, y:210, desc:"Travel missions, delays, help desk." },
-  { id:"corniche", name:"Abu Dhabi Corniche", emoji:"🏙️", city:"Abu Dhabi", minLevel:2, x:320, y:320, desc:"City places, directions, plans." },
-  { id:"adTaxi", name:"Abu Dhabi Taxi", emoji:"🚕", city:"Abu Dhabi", minLevel:2, x:360, y:390, desc:"Transport phrases and polite requests." },
-];
-
-// Personal Home POI (created by user)
-function getHomePOI(){
-  const thumb = localStorage.getItem("eq_home_thumb"); // dataURL
-  return {
-    id:"myhome",
-    name:"My Home (Personal)",
-    emoji:"🏠",
-    city:"Personal",
-    minLevel:0,
-    x:160,
-    y:520,
-    desc:"Your room/home objects: bed, door, window, desk…",
-    thumb
-  };
-}
-
-let MAP_ZOOM = 1;
-
-function canAccess(poi){
-  if(!USER) return false;
-  return (USER.level || 1) >= (poi.minLevel || 0);
-}
-
-function renderMap(){
-  const layer = $("poiLayer");
-  if(!layer) return;
-
-  layer.innerHTML = "";
-
-  // Always include personal POI first
-  const all = [getHomePOI(), ...POIS];
-
-  all.forEach(p=>{
-    const locked = USER ? !canAccess(p) : true;
-    const div = document.createElement("div");
-    div.className = "poi" + (locked ? " locked" : "");
-    div.style.left = p.x + "px";
-    div.style.top = p.y + "px";
-
-    const badge = locked ? "🔒" : "✅";
-    div.innerHTML = `
-      <div class="row" style="gap:8px; align-items:center;">
-        <div style="font-size:16px">${p.emoji}</div>
-        <div>
-          <div class="name">${p.name}</div>
-          <div class="mut" style="font-size:11px">${p.city} • L${p.minLevel}+ <span class="badge">${badge}</span></div>
-        </div>
-      </div>
-    `;
-
-    div.onclick = ()=> openPOI(p);
-    layer.appendChild(div);
-  });
-
-  // Apply zoom
-  $("mapCanvas").style.transform = `scale(${MAP_ZOOM})`;
-  $("zoomLabel").textContent = Math.round(MAP_ZOOM*100) + "%";
-}
-
-function openPOI(p){
-  const locked = !USER ? true : !canAccess(p);
-
-  if(locked){
-    $("poiPanel").innerHTML = `
-      <b>${p.emoji} ${p.name}</b><br>
-      <span class="pill">🔒 Locked</span>
-      <div style="margin-top:8px" class="mut">
-        Unlock at <b>Level ${p.minLevel}</b>.<br>
-        Complete missions to gain XP.
-      </div>
-    `;
-    return;
-  }
-
-  // If personal home exists, show thumbnail
-  const thumbHTML = p.thumb ? `<img class="poiThumb" src="${p.thumb}" alt="My Home thumbnail">` : "";
-
-  $("poiPanel").innerHTML = `
-    <b>${p.emoji} ${p.name}</b> <span class="pill">✅ Open</span><br>
-    <div style="margin-top:8px" class="mut">${p.desc}</div>
-    ${thumbHTML}
-    <hr class="hr">
-    <button class="primary" onclick="enterPOI('${p.id}')">▶️ Enter</button>
-  `;
-}
-
-function enterPOI(id){
-  // For now, route to existing worlds as v1
-  // Later we create dedicated missions per POI.
-  if(id === "myhome"){
-    // open "home" world mission
-    show("viewHome");
-    renderKPIs();
-    openWorld("home");
-    return;
-  }
-  if(id === "sports"){
-    show("viewHome"); renderKPIs(); openWorld("friends");
-    return;
-  }
-  // default: open city missions
-  show("viewHome");
-  renderKPIs();
-  openWorld("city");
-}
-
-function initMapUI(){
-  if(!$("btnAddHome")) return;
-
-  $("btnAddHome").onclick = ()=>{
-    if(!USER){ alert("Enter with a player code first."); return; }
-    $("homePhotoInput").click();
-  };
-
-  $("homePhotoInput").onchange = (e)=>{
-    const file = e.target.files && e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ()=>{
-      // Save thumbnail (data URL) locally (device only)
-      localStorage.setItem("eq_home_thumb", reader.result);
-      // Re-render map to show thumbnail inside POI panel if selected later
-      renderMap();
-      $("poiPanel").innerHTML = `<b>🏠 My Home (Personal)</b><br><span class="pill">✅ Saved</span>
-      <div class="mut" style="margin-top:8px">Photo saved on this device. Next step: comic-style filter + object missions.</div>
-      <img class="poiThumb" src="${reader.result}" alt="My Home thumbnail">`;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  $("zoomIn").onclick = ()=>{ MAP_ZOOM = Math.min(1.8, MAP_ZOOM + 0.1); renderMap(); };
-  $("zoomOut").onclick = ()=>{ MAP_ZOOM = Math.max(0.7, MAP_ZOOM - 0.1); renderMap(); };
-    // --- Drag to pan (Google Maps feel) ---
-  const vp = $("mapViewport");
-  let isDown = false;
-  let startX = 0, startY = 0, scrollLeft = 0, scrollTop = 0;
-
-  const down = (clientX, clientY)=>{
-    isDown = true;
-    vp.classList.add("dragging");
-    startX = clientX;
-    startY = clientY;
-    scrollLeft = vp.scrollLeft;
-    scrollTop = vp.scrollTop;
-  };
-
-  const move = (clientX, clientY)=>{
-    if(!isDown) return;
-    const dx = clientX - startX;
-    const dy = clientY - startY;
-    vp.scrollLeft = scrollLeft - dx;
-    vp.scrollTop  = scrollTop  - dy;
-  };
-
-  const up = ()=>{
-    isDown = false;
-    vp.classList.remove("dragging");
-  };
-
-  // Mouse
-  vp.addEventListener("mousedown", (e)=> down(e.clientX, e.clientY));
-  window.addEventListener("mousemove", (e)=> move(e.clientX, e.clientY));
-  window.addEventListener("mouseup", up);
-
-  // Touch (mobile)
-  vp.addEventListener("touchstart", (e)=>{
-    const t = e.touches[0];
-    down(t.clientX, t.clientY);
-  }, {passive:true});
-
-  vp.addEventListener("touchmove", (e)=>{
-    const t = e.touches[0];
-    move(t.clientX, t.clientY);
-  }, {passive:true});
-
-  vp.addEventListener("touchend", up, {passive:true});
-  
-    vp.addEventListener("wheel", (e)=>{
-    e.preventDefault();
-    const dir = Math.sign(e.deltaY);
-    MAP_ZOOM = Math.max(0.7, Math.min(1.8, MAP_ZOOM + (dir > 0 ? -0.08 : 0.08)));
-    renderMap();
-  }, {passive:false});
-}
 
 /* ===========================
-   3) Learning mechanics
-   - XP + Streak
-   - Spaced review (wrong words)
+   3) XP + streak
 =========================== */
 function updateStreak(u){
-  if(!u.lastDay){
-    u.streak = 0; u.lastDay = dayKey; return;
-  }
+  if(!u.lastDay){ u.streak = 0; u.lastDay = dayKey; return; }
   if(u.lastDay === dayKey) return;
 
   const prev = new Date(u.lastDay);
   const now = new Date(dayKey);
   const diffDays = Math.round((now - prev)/(1000*60*60*24));
-
   if(diffDays === 1) u.streak += 1;
   else u.streak = 0;
-
   u.lastDay = dayKey;
 }
 
@@ -635,14 +410,12 @@ function awardXP(u, amount){
   u.level = Math.max(u.level, nextLevel);
 }
 
-function markDayDone(u){
-  u.completedDays[dayKey] = true;
-}
-
+function markDayDone(u){ u.completedDays[dayKey] = true; }
 function todayDone(u){ return !!u.completedDays[dayKey]; }
 
 function addWrongWord(u, word){
-  const w = word.toLowerCase();
+  const w = (word||"").toLowerCase();
+  if(!w) return;
   const cur = u.wrongWords[w] || {count:0,lastWrongDay:null};
   cur.count += 1;
   cur.lastWrongDay = dayKey;
@@ -650,43 +423,72 @@ function addWrongWord(u, word){
 }
 
 /* ===========================
-   4) Audio: TTS + (optional) Speech Recognition
+   4) Audio (TTS + MIC)
 =========================== */
 function speak(text){
   if(!window.speechSynthesis){
-    alert("Este navegador no soporta audio.");
+    alert("Tu navegador no soporta audio (TTS).");
     return;
   }
-
-  // cancelar audios previos
   speechSynthesis.cancel();
-
-  const utt = new SpeechSynthesisUtterance(text);
+  const utt = new SpeechSynthesisUtterance(String(text||""));
   utt.lang = "en-US";
   utt.rate = 0.9;
   utt.pitch = 1;
 
   utt.onerror = (e)=>{
     console.error("TTS error", e);
-    alert("Error reproduciendo audio");
+    alert("Error reproduciendo audio.");
   };
 
   speechSynthesis.speak(utt);
 }
 
-let recog = null;
-function initSpeechRec(){
+function normalize(s){
+  return (s||"").toLowerCase().replace(/[^a-z0-9\s']/g,"").replace(/\s+/g," ").trim();
+}
+
+async function practiceSpeak(target){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) return null;
-  const r = new SR();
-  r.lang = "en-US";
-  r.interimResults = false;
-  r.maxAlternatives = 1;
-  return r;
+  if(!SR){
+    alert("Este navegador no soporta Speech Recognition. (Prueba Chrome/Edge)");
+    return;
+  }
+
+  try{
+    // permiso mic
+    await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    alert("Permiso de micrófono bloqueado. Actívalo en el navegador.");
+    return;
+  }
+
+  const rec = new SR();
+  rec.lang = "en-US";
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+
+  rec.onresult = (e)=>{
+    const said = e.results?.[0]?.[0]?.transcript || "";
+    const ok = normalize(said) === normalize(target);
+    alert(ok ? "✅ Excelente pronunciación" : `❌ Escuché: "${said}"`);
+    if(!ok && USER){
+      const words = normalize(target).split(" ").filter(w=>w.length>3).slice(0,2);
+      words.forEach(w=>addWrongWord(USER,w));
+      saveUser(USER);
+    }
+  };
+
+  rec.onerror = (e)=>{
+    console.error("Mic error", e);
+    alert("Error de micrófono / reconocimiento de voz.");
+  };
+
+  rec.start();
 }
 
 /* ===========================
-   5) Render Home
+   5) Home render
 =========================== */
 function renderWorlds(){
   const el = $("worlds");
@@ -696,8 +498,10 @@ function renderWorlds(){
     d.className = "tile";
     d.innerHTML = `
       <div class="row" style="justify-content:space-between;">
-        <div><div style="font-size:18px">${w.emoji} <b>${w.title}</b></div>
-        <div class="mut">${w.desc}</div></div>
+        <div>
+          <div style="font-size:18px">${w.emoji} <b>${w.title}</b></div>
+          <div class="mut">${w.desc}</div>
+        </div>
         <span class="pill">Open</span>
       </div>
     `;
@@ -727,9 +531,9 @@ function missionHTML(worldId, m){
           <div><b>${i+1}. ${en}</b></div>
           <div class="mut">${es}</div>
         </div>
-        <div class="row">
-          <button onclick="speak(${JSON.stringify(en)})">🔊</button>
-          <button onclick="practiceSpeak(${JSON.stringify(en)})">🎙️</button>
+        <div class="audio-controls">
+          <button title="Listen" onclick='speak(${JSON.stringify(en)})'>🔊</button>
+          <button title="Speak" onclick='practiceSpeak(${JSON.stringify(en)})'>🎤</button>
         </div>
       </div>
       <div class="mut" style="margin-top:8px;">Escribe la frase (sin mirar) y luego compara:</div>
@@ -750,59 +554,16 @@ function missionHTML(worldId, m){
   `;
 }
 
-function normalize(s){
-  return (s||"").toLowerCase().replace(/[^a-z0-9\s']/g,"").replace(/\s+/g," ").trim();
-}
-
 function checkTyping(worldId, i, target){
   const val = $("type_"+worldId+"_"+i).value;
   const ok = normalize(val) === normalize(target);
   const out = $("res_"+worldId+"_"+i);
   out.innerHTML = ok ? "<span class='msgOk'>Correct ✅</span>" : "<span class='msgBad'>Try again</span>";
-  if(!ok){
-    // add 1-2 key words to review list
+  if(!ok && USER){
     const words = normalize(target).split(" ").filter(w=>w.length>3).slice(0,2);
     words.forEach(w=>addWrongWord(USER,w));
     saveUser(USER);
   }
-}
-
-function practiceSpeak(target){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if(!SR){
-    alert("Este navegador no soporta reconocimiento de voz.");
-    return;
-  }
-
-  navigator.mediaDevices.getUserMedia({ audio:true })
-    .then(()=>{
-      const rec = new SR();
-      rec.lang = "en-US";
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
-
-      rec.onresult = (e)=>{
-        const said = e.results[0][0].transcript;
-        const ok = normalize(said) === normalize(target);
-
-        alert(
-          ok
-          ? "✅ Excelente pronunciación"
-          : `❌ Escuché: "${said}"`
-        );
-      };
-
-      rec.onerror = (e)=>{
-        console.error(e);
-        alert("Error de micrófono");
-      };
-
-      rec.start();
-    })
-    .catch(()=>{
-      alert("Permiso de micrófono bloqueado");
-    });
 }
 
 function finishMission(){
@@ -819,21 +580,20 @@ function finishMission(){
 }
 
 /* ===========================
-   6) Smart Review (Spaced)
+   6) Smart review
 =========================== */
 function smartReview(){
   const entries = Object.entries(USER.wrongWords || {});
   if(entries.length === 0){
-    $("panel").innerHTML = `<div class="card2"><b>🔁 Repaso</b><div class="mut">No hay palabras pendientes. ¡Vas muy bien! ✅</div></div>`;
+    $("panel").innerHTML = `<div class="card2"><b>🔁 Repaso</b><div class="mut">No hay palabras pendientes. ✅</div></div>`;
     return;
   }
-  // sort by count desc
   entries.sort((a,b)=> (b[1].count||0)-(a[1].count||0));
   const top = entries.slice(0,8);
 
   $("panel").innerHTML = `
     <h3>🔁 Repaso inteligente</h3>
-    <div class="mut">Estas son las palabras que más se te dificultan. Escucha y escribe.</div>
+    <div class="mut">Escucha y escribe.</div>
     ${top.map(([w,info],idx)=>`
       <div class="card2" style="margin-top:10px;">
         <div class="row" style="justify-content:space-between;">
@@ -855,7 +615,6 @@ function checkWord(idx, target){
   const ok = normalize(val) === normalize(target);
   $("rwres_"+idx).innerHTML = ok ? "<span class='msgOk'>Correct ✅</span>" : "<span class='msgBad'>Try again</span>";
   if(ok){
-    // reduce mistake weight a bit
     const cur = USER.wrongWords[target];
     if(cur && cur.count>0) cur.count -= 1;
     saveUser(USER);
@@ -863,7 +622,7 @@ function checkWord(idx, target){
 }
 
 /* ===========================
-   7) Arcade Games
+   7) Arcade
 =========================== */
 function arcadeMatch(){
   $("arcade").innerHTML = `
@@ -885,7 +644,7 @@ function pick(x){
   const ok = pairs[first]===x || pairs[x]===first;
   out.innerHTML = ok ? "<b class='msgOk'>¡Match! ✅</b>" : "<b class='msgBad'>No es pareja.</b>";
   first=null;
-  if(!ok && USER){ addWrongWord(USER, (x.length>3?x:first)||x); saveUser(USER); }
+  if(!ok && USER){ addWrongWord(USER, x); saveUser(USER); }
 }
 
 function arcadeQuiz(){
@@ -941,7 +700,7 @@ function bingoPick(w){
 }
 
 /* ===========================
-   8) Parents view (simple)
+   8) Parents
 =========================== */
 function renderParents(){
   const keys = Object.keys(localStorage).filter(k=>k.startsWith("eq_user_"));
@@ -969,17 +728,189 @@ function renderParents(){
 }
 
 /* ===========================
-   9) Navigation buttons
+   9) Map (POIs)
+=========================== */
+const POIS = [
+  { id:"dxb", name:"Dubai International Airport (DXB)", emoji:"✈️", city:"Dubai", minLevel:2, x:820, y:180, desc:"Check-in, security, gate, boarding." },
+  { id:"metro", name:"Dubai Metro", emoji:"🚇", city:"Dubai", minLevel:2, x:720, y:270, desc:"Tickets, directions, stations, routes." },
+  { id:"rtaTaxi", name:"RTA Taxi (Dubai)", emoji:"🚕", city:"Dubai", minLevel:1, x:660, y:330, desc:"Go to…, stop, please, price." },
+  { id:"dubaiMall", name:"Dubai Mall", emoji:"🏬", city:"Dubai", minLevel:1, x:610, y:390, desc:"Shopping, food, prices, asking for help." },
+  { id:"downtown", name:"Downtown Dubai", emoji:"🏙️", city:"Dubai", minLevel:2, x:560, y:440, desc:"Directions, landmarks, meeting friends." },
+  { id:"jbr", name:"JBR / The Beach", emoji:"🏖️", city:"Dubai", minLevel:3, x:740, y:470, desc:"Tourist talk, activities, safety rules." },
+  { id:"sports", name:"Sports World", emoji:"⚽", city:"Dubai", minLevel:2, x:470, y:320, desc:"Sports verbs, teamwork, friendly talk." },
+
+  { id:"auh", name:"Zayed International Airport (AUH)", emoji:"✈️", city:"Abu Dhabi", minLevel:3, x:260, y:210, desc:"Travel missions, delays, help desk." },
+  { id:"corniche", name:"Abu Dhabi Corniche", emoji:"🏙️", city:"Abu Dhabi", minLevel:2, x:320, y:320, desc:"City places, directions, plans." },
+  { id:"adTaxi", name:"Abu Dhabi Taxi", emoji:"🚕", city:"Abu Dhabi", minLevel:2, x:360, y:390, desc:"Transport phrases and polite requests." },
+];
+
+function getHomePOI(){
+  const thumb = localStorage.getItem("eq_home_thumb");
+  return {
+    id:"myhome", name:"My Home (Personal)", emoji:"🏠", city:"Personal", minLevel:0,
+    x:160, y:520, desc:"Your room/home objects: bed, door, window, desk…", thumb
+  };
+}
+
+let MAP_ZOOM = 1;
+let mapInitDone = false;
+
+function canAccess(poi){
+  if(!USER) return false;
+  return (USER.level || 1) >= (poi.minLevel || 0);
+}
+
+function renderMap(){
+  const layer = $("poiLayer");
+  if(!layer) return;
+
+  layer.innerHTML = "";
+  const all = [getHomePOI(), ...POIS];
+
+  all.forEach(p=>{
+    const locked = USER ? !canAccess(p) : true;
+    const div = document.createElement("div");
+    div.className = "poi" + (locked ? " locked" : "");
+    div.style.left = p.x + "px";
+    div.style.top = p.y + "px";
+
+    const badge = locked ? "🔒" : "✅";
+    div.innerHTML = `
+      <div class="row" style="gap:8px; align-items:center;">
+        <div style="font-size:16px">${p.emoji}</div>
+        <div>
+          <div class="name">${p.name}</div>
+          <div class="mut" style="font-size:11px">${p.city} • L${p.minLevel}+ <span class="badge">${badge}</span></div>
+        </div>
+      </div>
+    `;
+    div.onclick = ()=> openPOI(p);
+    layer.appendChild(div);
+  });
+
+  $("mapCanvas").style.transform = `scale(${MAP_ZOOM})`;
+  $("zoomLabel").textContent = Math.round(MAP_ZOOM*100) + "%";
+}
+
+function openPOI(p){
+  const locked = !USER ? true : !canAccess(p);
+
+  if(locked){
+    $("poiPanel").innerHTML = `
+      <b>${p.emoji} ${p.name}</b><br>
+      <span class="pill">🔒 Locked</span>
+      <div style="margin-top:8px" class="mut">
+        Unlock at <b>Level ${p.minLevel}</b>.
+      </div>
+    `;
+    return;
+  }
+
+  const thumbHTML = p.thumb ? `<img class="poiThumb" src="${p.thumb}" alt="My Home thumbnail">` : "";
+
+  $("poiPanel").innerHTML = `
+    <b>${p.emoji} ${p.name}</b> <span class="pill">✅ Open</span><br>
+    <div style="margin-top:8px" class="mut">${p.desc}</div>
+    ${thumbHTML}
+    <hr class="hr">
+    <button class="primary" onclick="enterPOI('${p.id}')">▶️ Enter</button>
+  `;
+}
+
+function enterPOI(id){
+  if(id === "myhome"){
+    show("viewHome"); renderKPIs(); openWorld("home"); return;
+  }
+  if(id === "sports"){
+    show("viewHome"); renderKPIs(); openWorld("friends"); return;
+  }
+  show("viewHome"); renderKPIs(); openWorld("city");
+}
+
+function initMapUI(){
+  if(mapInitDone) return;
+  mapInitDone = true;
+
+  $("btnAddHome").onclick = ()=>{
+    if(!USER){ alert("Enter with a player code first."); return; }
+    $("homePhotoInput").click();
+  };
+
+  $("homePhotoInput").onchange = (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      localStorage.setItem("eq_home_thumb", reader.result);
+      renderMap();
+      $("poiPanel").innerHTML = `
+        <b>🏠 My Home (Personal)</b><br><span class="pill">✅ Saved</span>
+        <div class="mut" style="margin-top:8px">Foto guardada en este dispositivo.</div>
+        <img class="poiThumb" src="${reader.result}" alt="My Home thumbnail">
+      `;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  $("zoomIn").onclick  = ()=>{ MAP_ZOOM = Math.min(2.2, MAP_ZOOM + 0.1); renderMap(); };
+  $("zoomOut").onclick = ()=>{ MAP_ZOOM = Math.max(0.6, MAP_ZOOM - 0.1); renderMap(); };
+
+  // Drag / pan (pointer events: mouse + touch)
+  const vp = $("mapViewport");
+  let dragging = false, startX=0, startY=0, startSL=0, startST=0;
+
+  vp.addEventListener("pointerdown", (e)=>{
+    dragging = true;
+    vp.classList.add("dragging");
+    vp.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    startSL = vp.scrollLeft; startST = vp.scrollTop;
+  });
+
+  vp.addEventListener("pointermove", (e)=>{
+    if(!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    vp.scrollLeft = startSL - dx;
+    vp.scrollTop  = startST - dy;
+  });
+
+  vp.addEventListener("pointerup", ()=>{
+    dragging = false;
+    vp.classList.remove("dragging");
+  });
+
+  vp.addEventListener("pointercancel", ()=>{
+    dragging = false;
+    vp.classList.remove("dragging");
+  });
+
+  // Wheel zoom
+  vp.addEventListener("wheel", (e)=>{
+    e.preventDefault();
+    const dir = Math.sign(e.deltaY);
+    MAP_ZOOM = Math.max(0.6, Math.min(2.2, MAP_ZOOM + (dir > 0 ? -0.08 : 0.08)));
+    renderMap();
+  }, {passive:false});
+}
+
+/* ===========================
+   10) Navigation
 =========================== */
 $("btnHome").onclick = ()=> { if(USER){ show("viewHome"); renderKPIs(); } else show("viewLogin"); };
-$("btnArcade").onclick = ()=> { show("viewArcade"); $("arcade").innerHTML = `<div class="card2" class="mut">Elige un juego arriba.</div>`; };
+
+$("btnArcade").onclick = ()=>{
+  show("viewArcade");
+  $("arcade").innerHTML = `<div class="card2"><div class="mut">Elige un juego arriba.</div></div>`;
+};
+
 $("btnParents").onclick = ()=> { show("viewParents"); renderParents(); };
-  $("btnMap").onclick = ()=>{
+
+$("btnMap").onclick = ()=>{
   show("viewMap");
   initMapUI();
   renderMap();
 };
-
 
 $("btnEnter").onclick = ()=>{
   const code = $("code").value.trim();
@@ -987,7 +918,7 @@ $("btnEnter").onclick = ()=>{
   USER = loadUser(code);
   renderWorlds();
   renderKPIs();
-  $("panel").innerHTML = `<div class="card2"><b>Elige un mundo arriba</b><div class="mut">Luego presiona “Empezar misión de hoy”.</div></div>`;
+  $("panel").innerHTML = `<div class="card2"><b>Elige un mundo</b><div class="mut">Luego presiona “Today’s Mission”.</div></div>`;
   show("viewHome");
 };
 
@@ -998,14 +929,13 @@ $("btnLogout").onclick = ()=>{
 };
 
 $("btnDaily").onclick = ()=>{
-  // pick world based on simple rotation
   const w = WORLDS[today.getDay()%WORLDS.length].id;
   openWorld(w);
 };
 
 $("btnReview").onclick = ()=> smartReview();
 
-// default view
+// default
 show("viewLogin");
 </script>
 </body>
